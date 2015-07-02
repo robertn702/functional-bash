@@ -1,65 +1,56 @@
 #!/bin/bash
 
-# Example:
+_echo() {
+  echo "ITEM: $1"
+  echo "IDX: $2"
+}
+
+# FOREACH
+# =======
 #
-# LIST
-# ----
-# LIST=(this is my list)
-#
-# CALLBACK:
-# ---------
-# _echo() {
-#   echo "ITEM: $1"
-#   echo "IDX: $2"
-# }
-#
-# FUNCTION CALL
-# -------------
-# _each() LIST[@] _echo
+# EXAMPLE
+# -------
+# _each LIST[@] CALLBACK(ITEM, IDX)
 #
 
 _each() {
   declare -a local LIST=("${!1}")
+  declare -f local CB=($2)
   local IDX=0
 
   for ITEM in ${LIST[@]}; do
-    $2 $ITEM $IDX
+    $CB $ITEM $IDX
     (( IDX++ ))
   done
 }
 
-# Example:
+# MAP
+# ========
 #
-# LIST
-# ----
-# LIST=(1, 2, 3, 4, 5)
-#
-# CALLBACK:
-# ---------
-# _addFive() {
-#   $1 + 5
-# }
-#
-# FUNCTION CALL
-# -------------
-# _each() LIST[@] _echo
+# EXAMPLE
+# -------
+# RESULT=$(_map LIST[@] CALLBACK(ITEM, IDX))
 #
 
-_map() {
-  local RETURN_LIST=()
-  RETURN_LIST+=_each $1 $2
+_addFive() {
+  echo $(( $1 + 5 ))
 }
 
-# _reduce() {
-#   LIST=$1
-#   CALLBACK=$2
-#   INITIAL_VALUE=$3
-#   # if initial value exists then set total to initial value else
-#   for ITEM in $LIST
-#     TOTAL = CALLBACK $TOTAL, $ITEM
-# }
+_map() {
+  # LIST = $1
+  declare -a local LIST=("${!1}")
+  declare -f local CB=("$2")
 
-# _includes() {
+  # _each LIST[@] CB
 
-# }
+  for ITEM in "${LIST[@]}"; do
+    $CB $ITEM $IDX
+  done
+}
+
+# TEST MAP
+# ========
+# list=(1 2 3 4 5)
+# mapResult=$(_map list[@] _addFive)
+# echo $mapResult
 
