@@ -12,7 +12,7 @@ _each() {
   declare -a LIST=("${!1}")
   declare -f CB=($2)
 
-  for ((x=0; x<${#LIST[@]}; x++)) {
+  for (( i = 0; i < ${#LIST[@]}; i++ )); {
     $CB ${LIST[x]} $x
   }
 }
@@ -46,10 +46,11 @@ _map() {
 # ========
 # addFive() {
 #   echo $(( $1 + 5 ))
+#   # return $(( $1 + 5 ))
 # }
 # list=(1 2 3 4 5)
 # mapResult=$(_map list[@] addFive)
-# echo $mapResult
+# echo "mapResult: $mapResult"
 
 
 # REDUCE
@@ -61,43 +62,29 @@ _map() {
 #
 
 _reduce() {
-  declare -a  LIST=("${!1}")
-  declare -f  CB=("$2")
-
+  declare -a LIST=("${!1}")
+  declare -f CB=("$2")
   local MEMO=$3
   local START=0
-  local IDX=0
-  # echo "MEMO: $MEMO"
-  # echo "START: $START"
-  # echo "IDX: $IDX"
 
-  #
-  if [ $# -lt 4 ]
-    then
-      local MEMO="${LIST[0]}"
-      echo "MEMO is 1: $MEMO"
-      local START=1
+  if [ $# -lt 3 ]; then
+    local MEMO="${LIST[0]}"
+    local START=1
   fi
 
-  for VALUE in "${LIST[@]}"; do
-    if [ "$IDX" -ge "$START" ]
-      then
-        $(MEMO+=$(($CB $MEMO $VALUE)))
-        echo "MEMO: $MEMO"
-    fi
-    (( IDX++ ))
-  done
-  return $MEMO
+  for (( i = $START; i < ${#LIST[@]}; i++ )) {
+    MEMO=$($CB $MEMO ${LIST[i]})
+  }
+
+  echo "Return Value: $MEMO "
 }
 
 # TEST REDUCE
 # ========
 # sum() {
-#   # echo "1: $1"
-#   # echo "2: $2"
 #   echo $(( $1 + $2 ))
 # }
 # list=(1 2 3 4 5)
-# reduceResult=$(_reduce list[@] sum 0)
-# echo $reduceResult
+# reduceResult=$(_reduce list[@] sum)
+# echo "reduceResult: $reduceResult"
 
