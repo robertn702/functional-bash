@@ -1,10 +1,5 @@
 #!/bin/bash
 
-_echo() {
-  echo "ITEM: $1"
-  echo "IDX: $2"
-}
-
 # FOREACH
 # =======
 #
@@ -14,15 +9,23 @@ _echo() {
 #
 
 _each() {
-  declare -a local LIST=("${!1}")
-  declare -f local CB=($2)
-  local IDX=0
+  declare -a LIST=("${!1}")
+  declare -f CB=($2)
 
-  for ITEM in ${LIST[@]}; do
-    $CB $ITEM $IDX
-    (( IDX++ ))
-  done
+  for ((x=0; x<${#LIST[@]}; x++)) {
+    $CB ${LIST[x]} $x
+  }
 }
+
+# TEST EACH
+# ========
+# echo_item() {
+#   echo "ITEM: $1"
+#   echo "IDX: $2"
+# }
+# list=(hello world)
+# _each list[@] echo_item
+
 
 # MAP
 # ========
@@ -32,25 +35,69 @@ _each() {
 # RESULT=$(_map LIST[@] CALLBACK(ITEM, IDX))
 #
 
-_addFive() {
-  echo $(( $1 + 5 ))
-}
-
 _map() {
-  # LIST = $1
-  declare -a local LIST=("${!1}")
-  declare -f local CB=("$2")
+  declare -a LIST=("${!1}")
+  declare -f CB=("$2")
 
-  # _each LIST[@] CB
-
-  for ITEM in "${LIST[@]}"; do
-    $CB $ITEM $IDX
-  done
+  echo $(_each LIST[@] $CB)
 }
 
 # TEST MAP
 # ========
+# addFive() {
+#   echo $(( $1 + 5 ))
+# }
 # list=(1 2 3 4 5)
-# mapResult=$(_map list[@] _addFive)
+# mapResult=$(_map list[@] addFive)
 # echo $mapResult
+
+
+# REDUCE
+# ========
+#
+# EXAMPLE
+# -------
+# RESULT=${_reduce LIST[@] CALLBACK(MEMO, VALUE) MEMO}
+#
+
+_reduce() {
+  declare -a  LIST=("${!1}")
+  declare -f  CB=("$2")
+
+  local MEMO=$3
+  local START=0
+  local IDX=0
+  # echo "MEMO: $MEMO"
+  # echo "START: $START"
+  # echo "IDX: $IDX"
+
+  #
+  if [ $# -lt 4 ]
+    then
+      local MEMO="${LIST[0]}"
+      echo "MEMO is 1: $MEMO"
+      local START=1
+  fi
+
+  for VALUE in "${LIST[@]}"; do
+    if [ "$IDX" -ge "$START" ]
+      then
+        $(MEMO+=$(($CB $MEMO $VALUE)))
+        echo "MEMO: $MEMO"
+    fi
+    (( IDX++ ))
+  done
+  return $MEMO
+}
+
+# TEST REDUCE
+# ========
+# sum() {
+#   # echo "1: $1"
+#   # echo "2: $2"
+#   echo $(( $1 + $2 ))
+# }
+# list=(1 2 3 4 5)
+# reduceResult=$(_reduce list[@] sum 0)
+# echo $reduceResult
 
