@@ -28,7 +28,7 @@ _each() {
 
 
 # MAP
-# ========
+# ===
 #
 # EXAMPLE
 # -------
@@ -54,7 +54,7 @@ _map() {
 
 
 # REDUCE
-# ========
+# ======
 #
 # EXAMPLE
 # -------
@@ -75,12 +75,11 @@ _reduce() {
   for (( i = $START; i < ${#LIST[@]}; i++ )) {
     MEMO=$($CB $MEMO ${LIST[i]})
   }
-
-  echo "Return Value: $MEMO "
+  echo $MEMO
 }
 
 # TEST REDUCE
-# ========
+# ===========
 # sum() {
 #   echo $(( $1 + $2 ))
 # }
